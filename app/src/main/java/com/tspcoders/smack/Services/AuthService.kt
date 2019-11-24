@@ -71,6 +71,7 @@ object AuthService {
                     Log.d("JSON", "EXC:" + e.localizedMessage)
                     complete(false)
                 }
+                println("DEBUG isLoggedIn = " + isLoggedIn.toString())
 
             }, Response.ErrorListener { error ->
                 Log.d("ERROR", "Could not login user: $error")
@@ -150,6 +151,9 @@ object AuthService {
                 UserDataService.avatarName = response.getString("avatarName")
                 UserDataService.avatarColor = response.getString("avatarColor")
                 UserDataService.id = response.getString("_id")
+
+                println("DEBUG (UserDataService): email: " + UserDataService.email + ", name: " + UserDataService.name)
+
 
                 val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
                 LocalBroadcastManager.getInstance(context).sendBroadcast(userDataChange)
