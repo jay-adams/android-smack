@@ -18,12 +18,15 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.GravityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.tspcoders.smack.Model.Channel
 import com.tspcoders.smack.R
 import com.tspcoders.smack.Services.AuthService
+import com.tspcoders.smack.Services.MessageService
 import com.tspcoders.smack.Services.UserDataService
 import com.tspcoders.smack.Utilities.BROADCAST_USER_DATA_CHANGE
 import com.tspcoders.smack.Utilities.SOCKET_URL
 import io.socket.client.IO
+import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
@@ -36,7 +39,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
+        socket.connect()
+        socket.on("channelCreated", onNewChannel)
+        
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
@@ -44,21 +49,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        super.onResume()
-        println("onResume has been called")
         LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver,
             IntentFilter(BROADCAST_USER_DATA_CHANGE))
-        socket.connect()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        println("onPause has been called")
-        //LocalBroadcastManager.getInstance(this).unregisterReceiver(userDataChangeReceiver)
+        super.onResume()
     }
 
     override fun onDestroy() {
         socket.disconnect()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(userDataChangeReceiver)
         super.onDestroy()
     }
 
@@ -72,7 +70,6 @@ class MainActivity : AppCompatActivity() {
 
     private val userDataChangeReceiver = object: BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            println("DEBUG from userDataChange: AuthService.isLoggedIn: " + AuthService.isLoggedIn.toString())
             if (AuthService.isLoggedIn) {
                 userNameNavHeader.text = UserDataService.name
                 userEmailNavHeader.text = UserDataService.email
@@ -119,6 +116,21 @@ class MainActivity : AppCompatActivity() {
                 }
                 .show()
         }
+    }
+
+    private val onNewChannel = Emitter.Listener {  args ->
+        runOnUiThread {
+            val channelName = args[0] as String
+            val channelDescription = args[1] as String
+            val channelId = args[2] as String
+
+            val newChannel = Channel(channelName, channelDescription, channelId)
+            MessageService.channels.add(newChannel)
+            println(newChannel.name)
+            println(newChannel.description)
+            println(newChannel.id)
+        }
+
     }
 
     fun sendMsgBtnClicked(view: View) {
