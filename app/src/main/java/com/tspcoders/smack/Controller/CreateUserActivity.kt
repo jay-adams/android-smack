@@ -82,15 +82,12 @@ class CreateUserActivity : AppCompatActivity() {
                 } else {
                     errorToast()
                 }
-
             }
         } else {
             Toast.makeText(this, "Make sure user name, email, and password are filled in.",
                 Toast.LENGTH_LONG).show()
             enableSpinner(false)
         }
-
-
     }
 
     fun errorToast() {
@@ -98,7 +95,6 @@ class CreateUserActivity : AppCompatActivity() {
             Toast.LENGTH_LONG).show()
         enableSpinner(false)
     }
-
 
     fun enableSpinner(enable: Boolean) {
         if (enable) {

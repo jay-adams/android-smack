@@ -30,7 +30,6 @@ object AuthService {
         jsonBody.put("email", email)
         jsonBody.put("password", password)
         val requestBody = jsonBody.toString()
-        println("DEBUG: requestBody: To" + requestBody)
 
         val registerRequest =
             object : StringRequest(Method.POST, URL_REGISTER, Response.Listener { response ->
@@ -58,8 +57,6 @@ object AuthService {
         jsonBody.put("password", password)
         val requestBody = jsonBody.toString()
 
-        println("DEBUG from loginUser: " + requestBody)
-
         val loginRequest =
             object : JsonObjectRequest(Method.POST, URL_LOGIN, null, Response.Listener { response ->
                 try {
@@ -71,7 +68,6 @@ object AuthService {
                     Log.d("JSON", "EXC:" + e.localizedMessage)
                     complete(false)
                 }
-                println("DEBUG isLoggedIn = " + isLoggedIn.toString())
 
             }, Response.ErrorListener { error ->
                 Log.d("ERROR", "Could not login user: $error")
@@ -102,7 +98,6 @@ object AuthService {
         jsonBody.put("avatarName", avatarName)
         jsonBody.put("avatarColor", avatarColor)
         val requestBody = jsonBody.toString()
-        println("DEBUG: requestBody: To" + requestBody)
 
         val createRequest = object :
             JsonObjectRequest(Method.POST, URL_CREATE_USER, null, Response.Listener { response ->
@@ -152,9 +147,6 @@ object AuthService {
                 UserDataService.avatarColor = response.getString("avatarColor")
                 UserDataService.id = response.getString("_id")
 
-                println("DEBUG (UserDataService): email: " + UserDataService.email + ", name: " + UserDataService.name)
-
-
                 val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
                 LocalBroadcastManager.getInstance(context).sendBroadcast(userDataChange)
                 complete(true)
@@ -181,4 +173,3 @@ object AuthService {
         Volley.newRequestQueue(context).add(findUserRequest)
     }
 }
-
